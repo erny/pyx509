@@ -755,6 +755,23 @@ class X509Certificate(BaseModel):
         self.verification_results = None
         self.raw_der_data = ""  # raw der data for storage are kept here by cert_manager
         self.check_crl = True
+        # create some aliases here
+        self.subject = self.tbsCertificate.subject
+        self.san = self.tbsCertificate
+        self.issuer = self.tbsCertificate.issuer
+
+    def get_subject_identifier(self, identifier_fields=('serialNumber', 'DNI')):
+        for f in identifier_fields:
+            try:
+                return self.tbsCertificate.subject.get_attributes()[f][0]
+            except (KeyError, IndexError):
+                pass
+        for f in identifier_fields:
+            try:
+                return self.tbsCertificate.subjAltNameExt.value.items[1][1].get_attributes()[f][0]
+            except (KeyError, AttributeError, IndexError):
+                pass
+        return None
 
     def is_verified(self, ignore_missing_crl_check=False):
         '''
@@ -1294,6 +1311,15 @@ class PKCS7(BaseModel):
         valid_to = c.tbsCertificate.validity.get_valid_to_as_datetime()
         signer = str(c.tbsCertificate.subject)
         return signedDate, valid_from, valid_to, signer
+
+    def get_signers(self, identifier_fields=('serialNumber', 'DNI')):
+        signers = []
+        try:
+            for cert in self.content.certificates:
+                signers.append(cert.get_subject_identifier(identifier_fields))
+        except AttributeError:
+            pass
+        return signers
 
     def display(self):
         try:
