@@ -1,6 +1,12 @@
-0.1.6 2017-05-31
+0.1.7 2017-07-25
+----------------
 
-* Add alias to get signer uids based on give fields.
+* Change parsing of subjectAltName ext with MS Certificates.
+
+0.1.6 2017-05-31
+----------------
+
+* Add alias to get signer uids based on given fields.
 
 0.1.5 2015-09-21
 ----------------

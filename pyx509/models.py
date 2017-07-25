@@ -103,6 +103,7 @@ class Name(BaseModel):
         "2.5.4.46": "dnQualifier",
         "2.5.4.65": "pseudonym",
         "0.9.2342.19200300.100.1.25": "DC",
+        "1.3.6.1.4.1.311.20.2.3": "userPrincipalName",  # (UPN) MS
         # Spanish FNMT
         "1.3.6.1.4.1.5734.1.2": "Apellido1",
         "1.3.6.1.4.1.5734.1.3": "Apellido2",
@@ -110,6 +111,7 @@ class Name(BaseModel):
         "1.3.6.1.4.1.5734.1.4": "DNI",
         "1.3.6.1.4.1.5734.1.6": "RazonSocial",
         "1.3.6.1.4.1.5734.1.7": "CIF",
+
         # Spain, Ministry of Presidence, X509 SubjectAltName fields electronic sealing
         "2.16.724.1.3.5.2.2.1": "certType",
         "2.16.724.1.3.5.2.2.2": "O",
@@ -127,6 +129,10 @@ class Name(BaseModel):
     def __init__(self, name):
         self.__attributes = {}
         for name_part in name:
+            # hack for MS certificates
+            if str(name_part) == '1.3.6.1.4.1.311.20.2.3':
+                self.__attributes['userPrincipalName'] = str(name.getComponentByPosition(1))
+                return
             for attr in name_part:
                 type = str(attr.getComponentByPosition(0).getComponentByName('type'))
                 value = str(attr.getComponentByPosition(0).getComponentByName('value'))
@@ -731,10 +737,12 @@ class Certificate(BaseModel):
                 setattr(self, ext.ext_type, ext)
 
     def _create_extensions_list(self, extensions):
-        if extensions is None:
-            return []
-
-        return [Extension(ext) for ext in extensions]
+        res = []
+        if extensions:
+            for ext in extensions:
+                ext = Extension(ext)
+            res.append(ext)
+        return res
 
 
 class X509Certificate(BaseModel):

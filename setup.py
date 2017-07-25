@@ -3,7 +3,7 @@ from setuptools import find_packages
 
 setup(
     name='pyx509',
-    version='0.1.6',
+    version='0.1.7',
     packages=find_packages(),
     url='http://pypi.python.org/pypi/pyx509/',
     license='LICENSE.txt',
