@@ -729,7 +729,7 @@ class Certificate(BaseModel):
 
         self.extensions = self._create_extensions_list(tbsCertificate.getComponentByName('extensions'))
 
-        #make known extensions accessible through attributes
+        # make known extensions accessible through attributes
         for extAttrName in ExtensionTypes.knownExtensions:
             setattr(self, extAttrName, None)
         for ext in self.extensions:
@@ -741,7 +741,7 @@ class Certificate(BaseModel):
         if extensions:
             for ext in extensions:
                 ext = Extension(ext)
-            res.append(ext)
+                res.append(ext)
         return res
 
 
